@@ -1,12 +1,25 @@
-# Mimin — Home 5 (Static Rebuild)
+# Mimin — Home 5 (Static Rebuild, Full Theme)
 
 A pixel-faithful static rebuild of the **Mimin** WordPress/WooCommerce theme
-(origin: `https://mimin.wpbingosite.com/home-5/`) in a single HTML file using
+(origin: `https://mimin.wpbingosite.com/home-5/`) in plain HTML using
 **Tailwind CSS (CDN) + vanilla JavaScript**. No build step required.
+
+## Pages
+
+| File | Page |
+|---|---|
+| `index.html` | Home 5 — hero slider, category banners, Best Sellers tabs, video banner, brands, lookbook, Instagram |
+| `shop.html` | Shop archive — sidebar widgets (price range, categories, colors, sizes, brands, rating, tags, top-rated), sorting, grid/list views, pagination, mobile filter drawer |
+| `product.html` | Single product — gallery with thumbs, color/size variations, qty, description/info/reviews tabs, review form, related products |
+| `cart.html` | Cart — editable table, coupon (`MIMIN10` / `WELCOME15`), totals, cross-sells |
+| `checkout.html` | Checkout — billing form, ship-to-different-address, order review, payment methods, order-received confirmation |
+| `blog.html` | Blog — featured post, article list, pagination |
+| `archive.html` | Blog archive — category chips + `?cat=` / `?month=` URL views, grid |
+| `post.html` | Single post — full article, tags/share, author box, comments with replies, related posts |
 
 ## Run it
 
-Open `index.html` directly in any modern browser — or serve the folder:
+Open any page directly in a modern browser — or serve the folder:
 
 ```bash
 npx serve .        # or: python3 -m http.server 8080
@@ -16,33 +29,31 @@ npx serve .        # or: python3 -m http.server 8080
 
 ```
 mimin-home5/
-├── index.html            ← the whole theme (HTML + Tailwind + JS)
-└── assets/img/           ← 40 original theme images (logo, hero, products…)
+├── index.html … archive.html   ← 8 pages (HTML + Tailwind + vanilla JS)
+└── assets/img/                 ← 40 original theme images
 ```
 
-## Sections (matching the original Home 5 layout)
+All pages share the same header (mega menu, search, account, cart drawer),
+footer, toast and back-to-top systems. The shared JS exposes a small API
+(`window.MiminUI`) used by page scripts — cart contents, toasts and product
+cards behave identically everywhere.
 
-1. **Header** — logo / dropdown nav / full-width mega menu (Shop) / search, account, wishlist, cart icons; sticky with scroll shadow
-2. **Hero slider** — 3 slides (`#D5E4E1` sage, `#F0F0F0` mist), full-bleed proportional composition, numbered 01/02/03 bullets, arrows, autoplay, swipe
-3. **Category banners** — Home Decor / Living Room / Lighting / Furniture with hover zoom + label buttons
-4. **Best Sellers** — working Bedroom / Lighting / Tables tabs (8 products each), sale badges, hover image swap, Quick View / Wishlist / Compare / Add-to-cart actions, "Shop More" button
-5. **Video banner** — play button opens a lightbox (drop your own MP4 into the `<video>` tag)
-6. **Brands** — infinite CSS marquee (Altura, Crafts, Echelon, Luminary, Stellar, Wooden), pauses on hover
-7. **Lookbook** — image with pulsing hotspots revealing product popovers + scroll-snap product carousel
-8. **Instagram** — 4-image grid with hover overlay + "Follow Us" button
-9. **Footer** — contact, Information / About Us columns, "Sign Up For 10% Off" newsletter, socials, payment icons, legal bar
+## Interactive features (vanilla JS, no dependencies)
 
-## Interactive features (vanilla JS)
-
-- Cart drawer: add / qty +− / remove / subtotal / empty state (stored in-memory)
-- Quick View modal with quantity picker
-- Search popup ("I'm looking for…") and Sign In / Register modal with tabs
-- Mobile: hamburger drawer with accordions
-- Wishlist counter, toast notifications, back-to-top, reveal-on-scroll, ESC-to-close
+- **Shop filters**: dual-handle price slider, category/brand checkboxes, color swatches, size + rating + tag chips — all combinable, with result counts and pagination
+- **Sorting**: default / popularity / rating / latest / price asc & desc
+- **Grid ↔ list view** toggle (`?view=list` supported)
+- **Cart**: shared cart store — drawer and cart page stay in sync; qty steppers, remove, coupon codes, free-shipping threshold at $100
+- **Checkout**: required-field validation, terms checkbox, 3 payment methods (bank details shown for transfer), simulated "Order received" receipt with order number/date/total
+- **Product**: image gallery, color/size selectors, review form that appends live
+- **Blog/archive**: category chips, month archive via URL, comment form with reply prefill, widget search
+- Hero slider (autoplay/arrows/swipe), quick-view modal, wishlist counter, mobile menu with accordions, lookbook hotspots, video lightbox, toasts, back-to-top, reveal-on-scroll, ESC-to-close
 
 ## Notes
 
 - Font: **Jost** (Google Fonts) — free stand-in for the theme's FuturaCyrillic
 - Tailwind loads via CDN (`cdn.tailwindcss.com`); for production, compile with the Tailwind CLI
+- Cart/checkout pages seed two demo items on load so the full layout is visible
+- Coupon codes for demo: `MIMIN10` (10% off), `WELCOME15` (15% off)
 - Video source is a placeholder MP4 — replace in the Video Modal `<source>`
-- The Lighting / Tables tab products are plausible demo data (original loads via AJAX)
+- Lighting/Tables tab products and blog content are plausible demo data (the original loads via AJAX)

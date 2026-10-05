@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart – Mimin</title>
+<meta name="description" content="Your cart at Mimin — review your items, apply a coupon and proceed to checkout.">
+<!-- Tailwind CSS (CDN) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        sage:  '#D5E4E1',
+        mist:  '#F0F0F0',
+        smoke: '#F3F3F3',
+        soft:  '#8B8B8B',
+        line:  '#EDEDED',
+        line2: '#E1E1E1',
+      },
+      fontFamily: {
+        sans: ['Jost', 'Futura', 'Century Gothic', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      maxWidth: {
+        boxed: '1200px',
+      },
+    }
+  }
+}
+</script>
+<!-- Jost: free Futura-like geometric sans (the original uses FuturaCyrillic Book/Medium) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Jost', Futura, 'Century Gothic', ui-sans-serif, system-ui, sans-serif; color:#000; background:#fff; -webkit-font-smoothing: antialiased; }
+  ::selection { background:#000; color:#fff; }
+
+  /* ---------- nav link underline hover ---------- */
+  .nav-link { position: relative; }
+  .nav-link::after {
+    content:''; position:absolute; left:0; bottom:-3px; height:1px; width:100%;
+    background:#000; transform:scaleX(0); transform-origin:right;
+    transition:transform .35s cubic-bezier(.25,.8,.25,1);
+  }
+  .nav-link:hover::after, .nav-link.active::after { transform:scaleX(1); transform-origin:left; }
+
+  /* ---------- hero slider ---------- */
+  .slide { position:absolute; inset:0; opacity:0; visibility:hidden; transition:opacity 1s ease, visibility 1s ease; }
+  .slide.is-active { opacity:1; visibility:visible; z-index:1; }
+  .slide .slide-img { transform:translateX(60px) scale(1.04); opacity:0; transition:transform 1.4s cubic-bezier(.22,.8,.26,.99), opacity 1.2s ease; }
+  .slide.is-active .slide-img { transform:translateX(0) scale(1); opacity:1; }
+  .slide .slide-eyebrow, .slide .slide-title, .slide .slide-desc, .slide .slide-btn {
+    opacity:0; transform:translateY(28px); transition:opacity .8s ease, transform .9s cubic-bezier(.22,.8,.26,.99);
+  }
+  .slide.is-active .slide-eyebrow  { transition-delay:.25s; opacity:1; transform:none; }
+  .slide.is-active .slide-title    { transition-delay:.4s;  opacity:1; transform:none; }
+  .slide.is-active .slide-desc     { transition-delay:.55s; opacity:1; transform:none; }
+  .slide.is-active .slide-btn      { transition-delay:.7s;  opacity:1; transform:none; }
+
+  /* numbered bullets */
+  .hero-bullet { position:relative; color:#9a9a9a; transition:color .3s; letter-spacing:.5px; }
+  .hero-bullet::after {
+    content:''; position:absolute; left:0; bottom:-7px; height:1px; width:100%;
+    background:#000; transform:scaleX(0); transform-origin:left; transition:transform .45s ease;
+  }
+  .hero-bullet.is-active { color:#000; }
+  .hero-bullet.is-active::after { transform:scaleX(1); }
+
+  /* ---------- buttons ---------- */
+  .btn-outline { display:inline-block; border:1px solid #000; border-radius:5px; padding:8px 18px; font-size:13px; letter-spacing:.7px; line-height:1.6; color:#000; background:transparent; transition:all .3s ease; }
+  .btn-outline:hover { background:#000; color:#fff; }
+  .btn-solid { display:inline-block; border:1px solid #000; border-radius:5px; padding:11px 34px; font-size:13px; letter-spacing:1px; color:#fff; background:#000; transition:all .3s ease; }
+  .btn-solid:hover { background:transparent; color:#000; }
+  .btn-line { display:inline-block; border:1px solid #000; padding:12px 40px; font-size:13px; letter-spacing:1px; color:#000; transition:all .3s ease; }
+  .btn-line:hover { background:#000; color:#fff; }
+
+  /* ---------- product card ---------- */
+  .product-card .product-media img { transition:opacity .6s ease, transform .8s cubic-bezier(.22,.8,.26,.99); }
+  .product-card:hover .product-media img.img-main { opacity:0; }
+  .product-card:hover .product-media img.img-hover { opacity:1; transform:scale(1.04); }
+  .product-card:hover .card-actions { opacity:1; transform:translateX(0); }
+  .product-card:hover .btn-atc { opacity:1; transform:translateY(0); }
+  .card-actions { opacity:0; transform:translateX(12px); transition:all .4s cubic-bezier(.22,.8,.26,.99); }
+  .btn-atc { opacity:0; transform:translateY(100%); transition:all .4s cubic-bezier(.22,.8,.26,.99); }
+  .icon-btn { display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:9999px; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.07); transition:all .3s; }
+  .icon-btn:hover { background:#000; color:#fff; }
+  .sale-badge { background:#000; color:#fff; font-size:14px; line-height:26px; min-width:48px; padding:0 13px; border-radius:5px; text-align:center; }
+
+  /* ---------- banners / instagram / images hover ---------- */
+  .zoom-img { overflow:hidden; }
+  .zoom-img img { transition:transform 1s cubic-bezier(.22,.8,.26,.99), opacity .8s; }
+  .zoom-img:hover img { transform:scale(1.06); }
+
+  /* ---------- brand marquee ---------- */
+  @keyframes marquee { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+  .marquee-track { display:flex; width:max-content; animation:marquee 28s linear infinite; }
+  .marquee:hover .marquee-track { animation-play-state:paused; }
+
+  /* ---------- hotspot ---------- */
+  @keyframes pulse-ring { 0% { transform:scale(1); opacity:.6; } 100% { transform:scale(2.1); opacity:0; } }
+  .hotspot-dot { position:relative; }
+  .hotspot-dot::before { content:''; position:absolute; inset:0; border-radius:9999px; background:rgba(255,255,255,.55); animation:pulse-ring 2s cubic-bezier(.2,.6,.36,1) infinite; }
+  .hotspot-pop { opacity:0; visibility:hidden; transform:translateY(8px); transition:all .3s ease; }
+  .hotspot.open .hotspot-pop, .hotspot:hover .hotspot-pop { opacity:1; visibility:visible; transform:translateY(0); }
+
+  /* ---------- overlays ---------- */
+  .overlay-panel { transition:transform .45s cubic-bezier(.22,.8,.26,.99), opacity .4s ease, visibility .4s; }
+  .modal-backdrop { transition:opacity .35s ease, visibility .35s; }
+  body.no-scroll { overflow:hidden; }
+
+  /* ---------- reveal on scroll ---------- */
+  .reveal { opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .9s cubic-bezier(.22,.8,.26,.99); }
+  .reveal.in { opacity:1; transform:none; }
+
+  /* tab underline */
+  .tab-btn { position:relative; color:#8B8B8B; transition:color .3s; }
+  .tab-btn::after { content:''; position:absolute; left:0; bottom:-6px; height:1px; width:100%; background:#000; transform:scaleX(0); transform-origin:left; transition:transform .35s ease; }
+  .tab-btn:hover, .tab-btn.is-active { color:#000; }
+  .tab-btn.is-active::after { transform:scaleX(1); }
+
+  /* accordion (mobile menu) */
+  .acc-body { max-height:0; overflow:hidden; transition:max-height .4s ease; }
+
+  /* scrollbar for cart drawer */
+  .thin-scroll::-webkit-scrollbar { width:4px; }
+  .thin-scroll::-webkit-scrollbar-thumb { background:#ddd; border-radius:4px; }
+
+  /* play button pulse */
+  @keyframes play-pulse { 0% { box-shadow:0 0 0 0 rgba(255,255,255,.45);} 100% { box-shadow:0 0 0 26px rgba(255,255,255,0);} }
+  .play-pulse { animation:play-pulse 2.2s infinite; }
+
+  /* toast */
+  .toast { transition:transform .4s cubic-bezier(.22,.8,.26,.99), opacity .4s; }
+</style>
+</head>
+<body class="antialiased text-black bg-white">
+
+<!-- ══════════════════════ HEADER ══════════════════════ -->
+<header id="site-header" class="sticky top-0 z-40 bg-white transition-shadow duration-300">
+  <div class="max-w-boxed mx-auto px-[15px]">
+    <div class="grid grid-cols-[auto_1fr_auto] lg:grid-cols-[20%_60%_20%] items-center h-[76px] gap-4">
+
+      <!-- mobile hamburger -->
+      <button id="mobile-menu-open" class="lg:hidden p-2 -ml-2" aria-label="Open menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+
+      <!-- logo -->
+      <a href="#" class="flex items-center justify-center lg:justify-start" aria-label="Mimin">
+        <img src="assets/img/logo.svg" alt="Mimin" class="h-6 w-auto">
+      </a>
+
+      <!-- desktop nav -->
+      <nav class="hidden lg:flex items-center justify-center gap-9 text-[15px]">
+        <div class="relative group">
+          <a href="#" class="nav-link inline-flex items-center gap-1.5 py-2">Home
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </a>
+          <div class="absolute left-1/2 -translate-x-1/2 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+            <ul class="w-[190px] bg-white border border-line shadow-[0_18px_40px_rgba(0,0,0,.08)] py-4">
+              <li><a class="block px-6 py-2 text-[14px] text-soft hover:text-black transition-colors" href="#">Home 1</a></li>
+              <li><a class="block px-6 py-2 text-[14px] text-soft hover:text-black transition-colors" href="#">Home 2</a></li>
+              <li><a class="block px-6 py-2 text-[14px] text-soft hover:text-black transition-colors" href="#">Home 3</a></li>
+              <li><a class="block px-6 py-2 text-[14px] text-soft hover:text-black transition-colors" href="#">Home 4</a></li>
+              <li><a class="block px-6 py-2 text-[14px] text-black" href="index.html">Home 5</a></li>
+              <li><a class="block px-6 py-2 text-[14px] text-soft hover:text-black transition-colors" href="#">Home 6</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- shop mega menu -->
+        <div class="static group">
+          <a href="#" class="nav-link inline-flex items-center gap-1.5 py-2">Shop
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </a>
+          <div class="fixed left-0 right-0 top-[76px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+            <div class="bg-white border-t border-line shadow-[0_30px_60px_rgba(0,0,0,.09)]">
+              <div class="max-w-boxed mx-auto px-[15px] py-10 grid grid-cols-6 gap-8">
+                <div>
+                  <h4 class="text-[16px] font-medium mb-5">Shop Style</h4>
+                  <ul class="space-y-2.5 text-[14px] text-soft">
+                    <li><a class="hover:text-black transition-colors" href="shop.html">Shop Standard</a></li>
+                    <li><a class="hover:text-black transition-colors" href="shop.html">Shop Full</a></li>
+                    <li><a class="hover:text-black transition-colors" href="shop.html">Shop Only Categories</a></li>
+                    <li><a class="hover:text-black transition-colors" href="shop.html">Shop Icon Categories</a></li>
+                    <li><a class="hover:text-black transition-colors" href="shop.html">Shop Image Categories</a></li>
+                    <li><a class="hover:text-black transition-colors" href="shop.html">Shop Image Categories 2</a></li>
+                    <li><a class="hover:text-black transition-colors" href="shop.html">Shop Sub Categories</a></li>
+                    <li><a class="hover:text-black transition-colors" href="shop.html?view=list">Shop List</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="text-[16px] font-medium mb-5">Mini Cart</h4>
+                  <ul class="space-y-2.5 text-[14px] text-soft mb-7">
+                    <li><a class="hover:text-black transition-colors" href="#">Side Out</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Dropdown</a></li>
+                  </ul>
+                  <h4 class="text-[16px] font-medium mb-5">Filter Layout</h4>
+                  <ul class="space-y-2.5 text-[14px] text-soft">
+                    <li><a class="hover:text-black transition-colors" href="#">Sidebar</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Filter Side Out</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Filter Dropdown</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Filter On Top</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Filter Drawer</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="text-[16px] font-medium mb-5">Product Cards</h4>
+                  <ul class="space-y-2.5 text-[14px] text-soft mb-7">
+                    <li><a class="hover:text-black transition-colors" href="#">Icons On Hover</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Quick View Button</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Add to cart Button</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Wishlists Icon</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Quick Shop Light</a></li>
+                  </ul>
+                  <h4 class="text-[16px] font-medium mb-5">Product Hover</h4>
+                  <ul class="space-y-2.5 text-[14px] text-soft">
+                    <li><a class="hover:text-black transition-colors" href="#">Standard</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Zoom</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Slider</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Fadein</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="text-[16px] font-medium mb-5">Woo Pages</h4>
+                  <ul class="space-y-2.5 text-[14px] text-soft mb-7">
+                    <li><a class="hover:text-black transition-colors" href="#">Order Tracking</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Login</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Wishlist</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Compare</a></li>
+                    <li><a class="hover:text-black transition-colors" href="cart.html">Cart</a></li>
+                  </ul>
+                  <h4 class="text-[16px] font-medium mb-5">Checkout Style</h4>
+                  <ul class="space-y-2.5 text-[14px] text-soft">
+                    <li><a class="hover:text-black transition-colors" href="checkout.html">Checkout Classic</a></li>
+                    <li><a class="hover:text-black transition-colors" href="checkout.html">Checkout Modern</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="text-[16px] font-medium mb-5">Product Featured</h4>
+                  <ul class="space-y-2.5 text-[14px] text-soft">
+                    <li><a class="hover:text-black transition-colors" href="#">Sticky add to cart</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Video Inner</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Video Popup</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">360 Degree</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Countdown</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Buy Together</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Buy More Save More</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Notify Me</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Recently Viewed</a></li>
+                    <li><a class="hover:text-black transition-colors" href="#">Trust Badge</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="text-[16px] font-medium mb-5">Recent Post</h4>
+                  <ul class="space-y-5">
+                    <li class="flex gap-3.5 items-center group">
+                      <a href="#" class="w-[72px] h-[72px] shrink-0 overflow-hidden zoom-img block"><img src="assets/img/product-3-600x600.webp" alt="Post" class="w-full h-full object-cover"></a>
+                      <div>
+                        <span class="block text-[12px] text-soft mb-1">10 Jan 2026</span>
+                        <a href="#" class="text-[13.5px] leading-snug group-hover:text-soft transition-colors">10 Interior Design Trends That Will Dominate 2026</a>
+                      </div>
+                    </li>
+                    <li class="flex gap-3.5 items-center group">
+                      <a href="#" class="w-[72px] h-[72px] shrink-0 overflow-hidden zoom-img block"><img src="assets/img/product-16-600x600.webp" alt="Post" class="w-full h-full object-cover"></a>
+                      <div>
+                        <span class="block text-[12px] text-soft mb-1">08 Jan 2026</span>
+                        <a href="#" class="text-[13.5px] leading-snug group-hover:text-soft transition-colors">Modern Interior Design Ideas for a Stylish Home</a>
+                      </div>
+                    </li>
+                    <li class="flex gap-3.5 items-center group">
+                      <a href="#" class="w-[72px] h-[72px] shrink-0 overflow-hidden zoom-img block"><img src="assets/img/product-5-600x600.webp" alt="Post" class="w-full h-full object-cover"></a>
+                      <div>
+                        <span class="block text-[12px] text-soft mb-1">06 Jan 2026</span>
+                        <a href="#" class="text-[13.5px] leading-snug group-hover:text-soft transition-colors">Living Room Design Ideas That Feel Cozy and Modern</a>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <a href="shop.html" class="nav-link py-2">Products</a>
+        <a href="blog.html" class="nav-link py-2">Blog</a>
+        <div class="relative group">
+          <a href="#" class="nav-link inline-flex items-center gap-1.5 py-2">Page
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </a>
+          <div class="absolute left-1/2 -translate-x-1/2 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+            <ul class="w-[180px] bg-white border border-line shadow-[0_18px_40px_rgba(0,0,0,.08)] py-4">
+              <li><a class="block px-6 py-2 text-[14px] text-soft hover:text-black transition-colors" href="#">About Us</a></li>
+              <li><a class="block px-6 py-2 text-[14px] text-soft hover:text-black transition-colors" href="#">Contact</a></li>
+              <li><a class="block px-6 py-2 text-[14px] text-soft hover:text-black transition-colors" href="#">Faq</a></li>
+              <li><a class="block px-6 py-2 text-[14px] text-soft hover:text-black transition-colors" href="#">Faq 2</a></li>
+              <li><a class="block px-6 py-2 text-[14px] text-soft hover:text-black transition-colors" href="archive.html">Archive</a></li>
+              <li><a class="block px-6 py-2 text-[14px] text-soft hover:text-black transition-colors" href="cart.html">Cart</a></li>
+              <li><a class="block px-6 py-2 text-[14px] text-soft hover:text-black transition-colors" href="checkout.html">Checkout</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <!-- action icons -->
+      <div class="flex items-center justify-end gap-5">
+        <button id="search-open" class="p-1 hover:opacity-60 transition-opacity" aria-label="Search">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+        <button id="account-open" class="hidden md:block p-1 hover:opacity-60 transition-opacity" aria-label="Account">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M5 21c.9-4 3.6-6 7-6s6.1 2 7 6"/></svg>
+        </button>
+        <button id="wishlist-open" class="hidden md:block relative p-1 hover:opacity-60 transition-opacity" aria-label="Wishlist">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 20.5S3.5 15.5 3.5 9.3A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 8.5 2.9c0 6.2-8.5 11.2-8.5 11.2Z"/></svg>
+          <span id="wishlist-count" class="absolute -top-0.5 -right-1.5 text-[11px] leading-none hidden">0</span>
+        </button>
+        <button id="cart-open" class="relative p-1 hover:opacity-60 transition-opacity" aria-label="Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 8h14l-1.2 12.2a1.8 1.8 0 0 1-1.8 1.6H8a1.8 1.8 0 0 1-1.8-1.6L5 8Z"/><path d="M8.5 10V6.5a3.5 3.5 0 0 1 7 0V10"/></svg>
+          <span id="cart-count" class="absolute -top-0.5 -right-1.5 text-[11px] leading-none hidden">0</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════ MOBILE MENU DRAWER ══════════════════════ -->
+<div id="mobile-menu-backdrop" class="modal-backdrop fixed inset-0 z-[60] bg-black/60 opacity-0 invisible"></div>
+<aside id="mobile-menu" class="overlay-panel fixed left-0 top-0 bottom-0 z-[70] w-[320px] max-w-[85vw] bg-white -translate-x-full invisible flex flex-col">
+  <div class="flex items-center justify-between px-6 h-[76px] border-b border-line">
+    <img src="assets/img/logo.svg" alt="Mimin" class="h-6 w-auto">
+    <button id="mobile-menu-close" class="p-2 -mr-2 hover:opacity-60" aria-label="Close menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <nav class="thin-scroll flex-1 overflow-y-auto px-6 py-6 text-[15px]">
+    <ul class="divide-y divide-line">
+      <li class="py-3">
+        <button class="acc-head w-full flex items-center justify-between" data-acc>
+          <span>Home</span>
+          <svg class="acc-arrow transition-transform duration-300" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <ul class="acc-body pl-4 text-[14px] text-soft">
+          <li class="py-2"><a href="#">Home 1</a></li>
+          <li class="py-2"><a href="#">Home 2</a></li>
+          <li class="py-2"><a href="#">Home 3</a></li>
+          <li class="py-2"><a href="#">Home 4</a></li>
+          <li class="py-2"><a href="#" class="text-black">Home 5</a></li>
+          <li class="py-2"><a href="#">Home 6</a></li>
+        </ul>
+      </li>
+      <li class="py-3">
+        <button class="acc-head w-full flex items-center justify-between" data-acc>
+          <span>Shop</span>
+          <svg class="acc-arrow transition-transform duration-300" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <ul class="acc-body pl-4 text-[14px] text-soft">
+          <li class="py-2"><a href="shop.html">Shop Standard</a></li>
+          <li class="py-2"><a href="shop.html">Shop Full</a></li>
+          <li class="py-2"><a href="shop.html">Shop Only Categories</a></li>
+          <li class="py-2"><a href="shop.html">Shop Image Categories</a></li>
+          <li class="py-2"><a href="shop.html?view=list">Shop List</a></li>
+        </ul>
+      </li>
+      <li class="py-3"><a href="shop.html" class="block">Products</a></li>
+      <li class="py-3"><a href="blog.html" class="block">Blog</a></li>
+      <li class="py-3">
+        <button class="acc-head w-full flex items-center justify-between" data-acc>
+          <span>Page</span>
+          <svg class="acc-arrow transition-transform duration-300" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <ul class="acc-body pl-4 text-[14px] text-soft">
+          <li class="py-2"><a href="#">About Us</a></li>
+          <li class="py-2"><a href="#">Contact</a></li>
+          <li class="py-2"><a href="#">Faq</a></li>
+          <li class="py-2"><a href="#">Faq 2</a></li>
+          <li class="py-2"><a href="#">Page 404</a></li>
+          <li class="py-2"><a href="archive.html">Archive</a></li>
+          <li class="py-2"><a href="cart.html">Cart</a></li>
+          <li class="py-2"><a href="checkout.html">Checkout</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+  <div class="px-6 py-5 border-t border-line text-[14px] text-soft space-y-2">
+    <p>Email: <a href="mailto:touch@miminstore.com" class="text-black">touch@miminstore.com</a></p>
+    <p>Call Us: <a href="tel:+4733378901" class="text-black">+4733378901</a></p>
+  </div>
+</aside>
+
+<!-- ══════════════════════ SEARCH POPUP ══════════════════════ -->
+<div id="search-modal" class="modal-backdrop fixed inset-0 z-[80] bg-black/85 opacity-0 invisible flex items-center justify-center p-5">
+  <div class="w-full max-w-[720px]">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-white text-[18px] font-medium tracking-wide">Search our store</h3>
+      <button id="search-close" class="text-white/80 hover:text-white transition-colors" aria-label="Close search">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form class="flex items-center gap-4 bg-white px-6" onsubmit="return false;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="shrink-0"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" placeholder="I'm looking for..." class="flex-1 h-[64px] bg-transparent outline-none text-[16px] placeholder:text-soft">
+      <button type="submit" class="text-[13px] tracking-[1px] uppercase hover:opacity-60 transition-opacity shrink-0">Search</button>
+    </form>
+    <p class="text-white/50 text-[13px] mt-4 tracking-wide">Popular: side table, accent chair, lamp, bench</p>
+  </div>
+</div>
+
+<!-- ══════════════════════ ACCOUNT MODAL ══════════════════════ -->
+<div id="account-modal" class="modal-backdrop fixed inset-0 z-[80] bg-black/85 opacity-0 invisible flex items-center justify-center p-5">
+  <div class="relative bg-white w-full max-w-[420px] p-9">
+    <button id="account-close" class="absolute top-4 right-4 p-1 hover:opacity-60" aria-label="Close">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="flex gap-8 border-b border-line mb-7">
+      <button class="acc-tab pb-3 text-[16px] font-medium border-b-2 border-black -mb-px" data-tab="signin">Sign In</button>
+      <button class="acc-tab pb-3 text-[16px] font-medium text-soft border-b-2 border-transparent -mb-px" data-tab="register">Register</button>
+    </div>
+
+    <form id="tab-signin" class="acc-pane space-y-4" onsubmit="return false;">
+      <input type="text" placeholder="Username or email address *" class="w-full border border-line px-4 py-3 text-[14px] outline-none focus:border-black transition-colors">
+      <input type="password" placeholder="Password *" class="w-full border border-line px-4 py-3 text-[14px] outline-none focus:border-black transition-colors">
+      <div class="flex items-center justify-between text-[13px] text-soft pt-1">
+        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="accent-black"> Remember me</label>
+        <a href="#" class="hover:text-black transition-colors">Lost password?</a>
+      </div>
+      <button class="btn-solid w-full !py-3.5">Sign In</button>
+    </form>
+
+    <form id="tab-register" class="acc-pane hidden space-y-4" onsubmit="return false;">
+      <input type="email" placeholder="Email address *" class="w-full border border-line px-4 py-3 text-[14px] outline-none focus:border-black transition-colors">
+      <p class="text-[13px] text-soft leading-relaxed">Your personal data will be used to support your experience throughout this website and to manage access to your account.</p>
+      <button class="btn-solid w-full !py-3.5">Register</button>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════ CART DRAWER ══════════════════════ -->
+<div id="cart-backdrop" class="modal-backdrop fixed inset-0 z-[60] bg-black/60 opacity-0 invisible"></div>
+<aside id="cart-drawer" class="overlay-panel fixed right-0 top-0 bottom-0 z-[70] w-[400px] max-w-[92vw] bg-white translate-x-full invisible flex flex-col">
+  <div class="flex items-center justify-between px-7 h-[76px] border-b border-line">
+    <h3 class="text-[18px] font-medium">Your Cart</h3>
+    <button id="cart-close" class="p-2 -mr-2 hover:opacity-60" aria-label="Close cart">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div id="cart-items" class="thin-scroll flex-1 overflow-y-auto px-7 py-6"></div>
+  <div id="cart-footer" class="border-t border-line px-7 py-6 hidden">
+    <div class="flex justify-between items-center mb-5">
+      <span class="text-[15px] text-soft">Subtotal</span>
+      <span id="cart-subtotal" class="text-[17px] font-medium">$0.00</span>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <a href="cart.html" class="btn-outline text-center">View Cart</a>
+      <a href="checkout.html" class="btn-solid text-center">Checkout</a>
+    </div>
+  </div>
+</aside>
+
+<!-- ══════════════════════ QUICK VIEW MODAL ══════════════════════ -->
+<div id="quickview-modal" class="modal-backdrop fixed inset-0 z-[80] bg-black/85 opacity-0 invisible flex items-center justify-center p-5">
+  <div class="relative bg-white w-full max-w-[760px] grid md:grid-cols-2">
+    <button id="quickview-close" class="absolute top-3 right-3 z-10 p-1.5 bg-white/80 hover:opacity-60" aria-label="Close">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="bg-mist"><img id="qv-img" src="" alt="Product" class="w-full h-full object-cover aspect-square"></div>
+    <div class="p-8 flex flex-col justify-center">
+      <p id="qv-cat" class="text-[13px] text-soft mb-2"></p>
+      <h3 id="qv-title" class="text-[22px] font-medium leading-snug mb-3"></h3>
+      <div id="qv-price" class="text-[17px] font-medium mb-5"></div>
+      <p class="text-[14px] text-soft leading-relaxed mb-6">A quiet study in proportion and craft — made to sit naturally in the modern home and age beautifully with use.</p>
+      <div class="flex gap-3">
+        <div class="flex items-center border border-line">
+          <button class="qv-qty-btn w-10 h-12 hover:bg-smoke transition-colors" data-d="-1">−</button>
+          <span id="qv-qty" class="w-10 text-center text-[14px]">1</span>
+          <button class="qv-qty-btn w-10 h-12 hover:bg-smoke transition-colors" data-d="1">+</button>
+        </div>
+        <button id="qv-add" class="btn-solid flex-1">Add to cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ BREADCRUMB ══════════════════════ -->
+<div class="max-w-boxed mx-auto px-[15px]">
+  <nav class="py-7 text-[13.5px] text-soft flex items-center gap-2.5 flex-wrap">
+    <a href="index.html" class="hover:text-black transition-colors">Home</a>
+    <span class="text-[11px]">›</span>
+    <span class="text-black">Cart</span>
+  </nav>
+</div>
+
+<!-- ══════════════════════ CART ══════════════════════ -->
+<section class="max-w-boxed mx-auto px-[15px] pb-24">
+  <h1 class="text-[34px] sm:text-[42px] leading-tight font-normal mb-10 reveal">Cart</h1>
+
+  <!-- empty state -->
+  <div id="cart-empty" class="hidden text-center py-20 border border-line reveal">
+    <svg class="mx-auto mb-6" width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="#d5d5d5" stroke-width="1.2"><path d="M5 8h14l-1.2 12.2a1.8 1.8 0 0 1-1.8 1.6H8a1.8 1.8 0 0 1-1.8-1.6L5 8Z"/><path d="M8.5 10V6.5a3.5 3.5 0 0 1 7 0V10"/></svg>
+    <p class="text-[17px] mb-2">Your cart is currently empty.</p>
+    <p class="text-soft text-[14.5px] mb-8">Before proceeding to checkout you must add some products to your cart.</p>
+    <a href="shop.html" class="btn-line">Return to shop</a>
+  </div>
+
+  <!-- cart content -->
+  <div id="cart-content">
+    <div class="reveal">
+      <!-- table head -->
+      <div class="hidden sm:grid grid-cols-[2.4fr_1fr_1.3fr_1fr_44px] gap-x-6 pb-4 border-b border-line text-[12.5px] tracking-[1px] uppercase text-soft">
+        <span>Product</span><span>Price</span><span>Quantity</span><span>Subtotal</span><span></span>
+      </div>
+      <!-- rows rendered by JS -->
+      <div id="cart-page-items"></div>
+    </div>
+
+    <!-- actions -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mt-10 reveal">
+      <a href="shop.html" class="btn-outline">← Return to shop</a>
+      <div class="flex items-stretch gap-0 w-full sm:w-auto max-w-[430px]">
+        <input id="coupon-input" type="text" placeholder="Coupon code — try MIMIN10" class="flex-1 border border-line px-4 py-3 text-[14px] outline-none focus:border-black transition-colors">
+        <button id="coupon-apply" class="shrink-0 border border-l-0 border-line px-6 text-[13px] tracking-[1px] hover:bg-black hover:text-white hover:border-black transition-all">Apply</button>
+      </div>
+    </div>
+
+    <!-- totals -->
+    <div class="flex justify-end mt-12 reveal">
+      <div class="w-full sm:w-[420px] bg-smoke p-8" id="cart-totals">
+        <h3 class="text-[20px] font-normal mb-6">Cart totals</h3>
+        <div class="space-y-3.5 text-[14.5px]">
+          <div class="flex justify-between"><span class="text-soft">Subtotal</span><span id="ct-subtotal">$0.00</span></div>
+          <div class="flex justify-between hidden" id="ct-coupon-row"><span class="text-soft">Coupon: <span class="text-black font-medium" id="ct-coupon-code">MIMIN10</span></span><span class="text-[#3E7C4F]" id="ct-discount">-$0.00</span></div>
+          <div class="flex justify-between"><span class="text-soft">Shipping</span><span id="ct-shipping">Free</span></div>
+          <div class="flex justify-between border-t border-line2 pt-4 text-[17px] font-medium"><span>Total</span><span id="ct-total">$0.00</span></div>
+        </div>
+        <p class="text-[12.5px] text-soft mt-4 mb-6">Shipping &amp; taxes are calculated at checkout. Free shipping on all orders over $100.</p>
+        <a href="checkout.html" class="btn-solid w-full text-center">Proceed to checkout</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- cross sells -->
+  <div id="cross-sell-wrap" class="mt-20 lg:mt-28 reveal hidden">
+    <h2 class="text-[28px] sm:text-[34px] leading-tight font-normal mb-12">You may be interested in…</h2>
+    <div id="cross-sells" class="grid grid-cols-2 lg:grid-cols-4 gap-x-[30px] gap-y-12"><!-- rendered by JS --></div>
+  </div>
+</section>
+<!-- ══════════════════════ FOOTER ══════════════════════ -->
+<footer class="bg-smoke mt-[90px] lg:mt-[130px]">
+  <div class="max-w-boxed mx-auto px-[15px] pt-[70px] lg:pt-[90px] pb-[50px]">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-y-12 gap-x-[30px]">
+      <!-- brand + contact -->
+      <div class="lg:col-span-4">
+        <img src="assets/img/logo.svg" alt="Mimin" class="h-6 w-auto mb-6">
+        <p class="text-[15px] text-soft leading-[1.8] max-w-[300px] mb-7">Empowering everyone to create spaces they love — a curated collection of furniture, crafted with care for modern living.</p>
+        <ul class="space-y-2.5 text-[15px]">
+          <li><span class="font-medium">Email:</span> <a href="mailto:touch@miminstore.com" class="text-soft hover:text-black transition-colors">touch@miminstore.com</a></li>
+          <li><span class="font-medium">Call Us:</span> <a href="tel:+4733378901" class="text-soft hover:text-black transition-colors">+4733378901</a></li>
+        </ul>
+      </div>
+      <!-- information -->
+      <div class="lg:col-span-2">
+        <h3 class="text-[17px] font-medium mb-6">Information</h3>
+        <ul class="space-y-3 text-[14.5px] text-soft">
+          <li><a href="#" class="hover:text-black transition-colors">My Account</a></li>
+          <li><a href="#" class="hover:text-black transition-colors">Order History</a></li>
+          <li><a href="#" class="hover:text-black transition-colors">Wishlist</a></li>
+          <li><a href="shop.html" class="hover:text-black transition-colors">Specials</a></li>
+          <li><a href="blog.html" class="hover:text-black transition-colors">Press</a></li>
+        </ul>
+      </div>
+      <!-- about us -->
+      <div class="lg:col-span-2">
+        <h3 class="text-[17px] font-medium mb-6">About Us</h3>
+        <ul class="space-y-3 text-[14.5px] text-soft">
+          <li><a href="#" class="hover:text-black transition-colors">About Us</a></li>
+          <li><a href="#" class="hover:text-black transition-colors">The Rewards Stack</a></li>
+          <li><a href="#" class="hover:text-black transition-colors">Sustainability</a></li>
+          <li><a href="#" class="hover:text-black transition-colors">Careers</a></li>
+          <li><a href="blog.html" class="hover:text-black transition-colors">Blog</a></li>
+        </ul>
+      </div>
+      <!-- newsletter -->
+      <div class="lg:col-span-4">
+        <h3 class="text-[17px] font-medium mb-6">Sign Up For 10% Off</h3>
+        <p class="text-[14.5px] text-soft leading-[1.8] mb-6">Be the first to know about new releases, exclusive promotions, events and styling tips!</p>
+        <form id="newsletter-form" class="flex mb-7" onsubmit="return false;">
+          <input type="email" required placeholder="Your email address" class="flex-1 min-w-0 bg-white border border-line2 border-r-0 px-5 py-3.5 text-[14px] outline-none focus:border-black transition-colors">
+          <button type="submit" class="shrink-0 bg-black text-white text-[13px] tracking-[1px] px-7 hover:bg-transparent hover:text-black border border-black transition-colors">Sign Up</button>
+        </form>
+        <div class="flex items-center gap-5">
+          <a href="#" aria-label="Facebook" class="text-soft hover:text-black transition-colors"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.2h-3.1V7.7c0-.9.3-1.6 1.6-1.6h1.6V3.2c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.4-4 4.1v2.6H7.6V13h2.7v8h3.2Z"/></svg></a>
+          <a href="#" aria-label="X" class="text-soft hover:text-black transition-colors"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 3h3l-6.6 7.6L22 21h-6.1l-4.8-6.3L5.6 21h-3l7.1-8.1L2 3h6.3l4.3 5.7L17.8 3Zm-1.1 16.2h1.7L7.4 4.7H5.6l11.1 14.5Z"/></svg></a>
+          <a href="#" aria-label="Youtube" class="text-soft hover:text-black transition-colors"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M22 8.2a3 3 0 0 0-2.1-2.1C18 5.5 12 5.5 12 5.5s-6 0-7.9.6A3 3 0 0 0 2 8.2 31 31 0 0 0 1.6 12 31 31 0 0 0 2 15.8a3 3 0 0 0 2.1 2.1c1.9.6 7.9.6 7.9.6s6 0 7.9-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 22.4 12 31 31 0 0 0 22 8.2ZM9.9 14.9V9.1l5.4 2.9-5.4 2.9Z"/></svg></a>
+          <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram" class="text-soft hover:text-black transition-colors"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="border-t border-line2">
+    <div class="max-w-boxed mx-auto px-[15px] py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <p class="text-[13.5px] text-soft">© 2026 – <a href="#" class="text-black hover:underline">mimin</a>. All Rights Reserved.</p>
+      <ul class="flex flex-wrap justify-center gap-x-7 gap-y-2 text-[13.5px] text-soft">
+        <li><a href="#" class="hover:text-black transition-colors">Terms of Use</a></li>
+        <li><a href="#" class="hover:text-black transition-colors">Copyright &amp; Trademark policy</a></li>
+        <li><a href="archive.html" class="hover:text-black transition-colors">Sitemap</a></li>
+      </ul>
+      <img src="assets/img/payment.png" alt="Payment methods" class="h-5 w-auto">
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════ VIDEO MODAL ══════════════════════ -->
+<div id="video-modal" class="modal-backdrop fixed inset-0 z-[80] bg-black/90 opacity-0 invisible flex items-center justify-center p-5">
+  <button id="video-close" class="absolute top-5 right-5 text-white/80 hover:text-white transition-colors z-10" aria-label="Close video">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </button>
+  <div class="w-full max-w-[960px] aspect-video bg-black">
+    <!-- Replace src with your own brand video -->
+    <video id="promo-video" controls preload="none" class="w-full h-full">
+      <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</div>
+
+<!-- ══════════════════════ TOAST + BACK TO TOP ══════════════════════ -->
+<div id="toast" class="toast fixed bottom-8 left-1/2 -translate-x-1/2 translate-y-20 opacity-0 z-[90] bg-black text-white text-[13.5px] tracking-wide px-6 py-3.5 shadow-xl pointer-events-none"></div>
+<button id="back-to-top" class="fixed bottom-8 right-8 z-50 w-11 h-11 bg-black text-white flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-soft" aria-label="Back to top">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m18 15-6-6-6 6"/></svg>
+</button>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   MIMIN — shared site JS (runs on every page, null-safe)
+   ══════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  const $  = (s, c) => (c || document).querySelector(s);
+  const $$ = (s, c) => Array.from((c || document).querySelectorAll(s));
+
+  const money = (n) => '$' + n.toFixed(2);
+
+  /* ---------- product card template ---------- */
+  function cardHTML(p) {
+    const badge = p.old ? `<span class="sale-badge absolute top-4 left-4 z-10">-${Math.round((1 - p.price / p.old) * 100)}%</span>` : '';
+    const price = p.old
+      ? `<p class="text-[15px]"><del class="text-soft font-normal mr-2">${money(p.old)}</del><span>${money(p.price)}</span></p>`
+      : `<p class="text-[15px]"><span>${money(p.price)}</span></p>`;
+    return `
+    <article class="product-card reveal" data-name="${p.name}" data-price="${p.price}" data-old="${p.old}" data-img="${p.img}" data-cat="${p.cat}">
+      <div class="product-media relative overflow-hidden bg-mist">
+        ${badge}
+        <a href="product.html" class="block aspect-square relative">
+          <img src="${p.img}"  alt="${p.name}" class="img-main absolute inset-0 w-full h-full object-cover">
+          <img src="${p.hover}" alt="" aria-hidden="true" class="img-hover absolute inset-0 w-full h-full object-cover opacity-0">
+        </a>
+        <div class="card-actions absolute right-3 top-3 flex flex-col gap-2">
+          <button class="icon-btn quickview-btn" aria-label="Quick View"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="icon-btn wishlist-btn" aria-label="Add to wishlist"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 20.5S3.5 15.5 3.5 9.3A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 8.5 2.9c0 6.2-8.5 11.2-8.5 11.2Z"/></svg></button>
+          <button class="icon-btn compare-btn" aria-label="Compare"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg></button>
+        </div>
+        <button class="btn-atc add-to-cart-btn absolute bottom-0 inset-x-0 bg-black text-white text-[13px] tracking-[1px] py-3.5">Add to cart</button>
+      </div>
+      <div class="pt-4">
+        <p class="text-[13px] text-soft mb-1.5">${p.cat}</p>
+        <h3 class="text-[15.5px] font-normal leading-snug mb-1.5"><a href="product.html" class="hover:text-soft transition-colors">${p.name}</a></h3>
+        ${price}
+      </div>
+    </article>`;
+  }
+
+  /* ---------- overlay helpers ---------- */
+  function openPanel(backdrop, panel, cls) {
+    if (!backdrop || !panel) return;
+    backdrop.classList.remove('opacity-0', 'invisible');
+    panel.classList.remove(...cls);
+    panel.classList.remove('invisible');
+    document.body.classList.add('no-scroll');
+  }
+  function closePanel(backdrop, panel, cls) {
+    if (!backdrop || !panel) return;
+    backdrop.classList.add('opacity-0', 'invisible');
+    panel.classList.add(...cls);
+    document.body.classList.remove('no-scroll');
+  }
+
+  /* cart drawer */
+  const cartBackdrop = $('#cart-backdrop'), cartDrawer = $('#cart-drawer');
+  const openCart  = () => openPanel(cartBackdrop, cartDrawer, ['translate-x-full']);
+  const closeCart = () => closePanel(cartBackdrop, cartDrawer, ['translate-x-full']);
+  if ($('#cart-open'))      $('#cart-open').addEventListener('click', openCart);
+  if ($('#cart-close'))     $('#cart-close').addEventListener('click', closeCart);
+  if (cartBackdrop)         cartBackdrop.addEventListener('click', closeCart);
+
+  /* mobile menu */
+  const mmBackdrop = $('#mobile-menu-backdrop'), mmDrawer = $('#mobile-menu');
+  const openMM  = () => openPanel(mmBackdrop, mmDrawer, ['-translate-x-full']);
+  const closeMM = () => closePanel(mmBackdrop, mmDrawer, ['-translate-x-full']);
+  if ($('#mobile-menu-open'))  $('#mobile-menu-open').addEventListener('click', openMM);
+  if ($('#mobile-menu-close')) $('#mobile-menu-close').addEventListener('click', closeMM);
+  if (mmBackdrop)              mmBackdrop.addEventListener('click', closeMM);
+
+  /* accordions in mobile menu */
+  $$('[data-acc]').forEach((head) => {
+    head.addEventListener('click', () => {
+      const body = head.nextElementSibling;
+      const open = body.style.maxHeight && body.style.maxHeight !== '0px';
+      body.style.maxHeight = open ? '0px' : body.scrollHeight + 'px';
+      head.querySelector('.acc-arrow').style.transform = open ? '' : 'rotate(180deg)';
+    });
+  });
+
+  /* generic backdrop modals (search / account / quickview / video) */
+  function bindModal(rootId, openBtnId, closeBtnId) {
+    const root = $('#' + rootId);
+    if (!root) return () => {};
+    if (openBtnId && $('#' + openBtnId)) $('#' + openBtnId).addEventListener('click', () => {
+      root.classList.remove('opacity-0', 'invisible');
+      document.body.classList.add('no-scroll');
+    });
+    const close = () => {
+      root.classList.add('opacity-0', 'invisible');
+      document.body.classList.remove('no-scroll');
+      const vid = root.querySelector('video'); if (vid) vid.pause();
+    };
+    if (closeBtnId && $('#' + closeBtnId)) $('#' + closeBtnId).addEventListener('click', close);
+    root.addEventListener('click', (e) => { if (e.target === root) close(); });
+    return close;
+  }
+  const closeSearch  = bindModal('search-modal', 'search-open', 'search-close');
+  const closeAccount = bindModal('account-modal', 'account-open', 'account-close');
+  const closeQuick   = bindModal('quickview-modal', null, 'quickview-close');
+  const closeVideo   = bindModal('video-modal', 'video-open', 'video-close');
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    closeSearch(); closeAccount(); closeQuick(); closeVideo(); closeCart(); closeMM();
+  });
+
+  /* account tabs */
+  $$('.acc-tab').forEach((t) => t.addEventListener('click', () => {
+    $$('.acc-tab').forEach((x) => {
+      x.classList.remove('border-black');
+      x.classList.add('text-soft', 'border-transparent');
+    });
+    t.classList.remove('text-soft', 'border-transparent');
+    t.classList.add('border-black');
+    $$('.acc-pane').forEach((p) => p.classList.add('hidden'));
+    const pane = $('#tab-' + t.dataset.tab);
+    if (pane) pane.classList.remove('hidden');
+  }));
+
+  /* ---------- cart store ---------- */
+  const cart = [];
+  function cartRender() {
+    const wrap = $('#cart-items'), foot = $('#cart-footer');
+    if (!wrap) return;
+    const count = cart.reduce((a, c) => a + c.qty, 0);
+    const total = cart.reduce((a, c) => a + c.qty * c.price, 0);
+    const badge = $('#cart-count');
+    if (badge) {
+      badge.textContent = count;
+      badge.classList.toggle('hidden', count === 0);
+    }
+    if (!cart.length) {
+      wrap.innerHTML = `
+        <div class="h-full flex flex-col items-center justify-center text-center gap-5 py-16">
+          <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#d5d5d5" stroke-width="1.2"><path d="M5 8h14l-1.2 12.2a1.8 1.8 0 0 1-1.8 1.6H8a1.8 1.8 0 0 1-1.8-1.6L5 8Z"/><path d="M8.5 10V6.5a3.5 3.5 0 0 1 7 0V10"/></svg>
+          <p class="text-soft text-[14.5px]">No products in the cart.</p>
+          <a href="shop.html" class="btn-outline">Return to shop</a>
+        </div>`;
+      if (foot) foot.classList.add('hidden');
+      return;
+    }
+    wrap.innerHTML = cart.map((c, i) => `
+      <div class="flex gap-4 py-4 border-b border-line">
+        <img src="${c.img}" alt="" class="w-20 h-20 object-cover bg-mist shrink-0">
+        <div class="flex-1 min-w-0">
+          <p class="text-[14px] leading-snug mb-1">${c.name}</p>
+          <p class="text-[13.5px] text-soft mb-2">${money(c.price)} × ${c.qty}</p>
+          <div class="inline-flex items-center border border-line">
+            <button class="w-7 h-7 text-[14px] hover:bg-smoke" data-ci="${i}" data-d="-1">−</button>
+            <span class="w-8 text-center text-[13px]">${c.qty}</span>
+            <button class="w-7 h-7 text-[14px] hover:bg-smoke" data-ci="${i}" data-d="1">+</button>
+          </div>
+        </div>
+        <button class="self-start p-1 text-soft hover:text-black transition-colors" data-remove="${i}" aria-label="Remove">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>`).join('');
+    if (foot) foot.classList.remove('hidden');
+    if ($('#cart-subtotal')) $('#cart-subtotal').textContent = money(total);
+  }
+  cartRender();
+
+  if ($('#cart-items')) $('#cart-items').addEventListener('click', (e) => {
+    const qtyBtn = e.target.closest('[data-ci]');
+    if (qtyBtn) {
+      const item = cart[+qtyBtn.dataset.ci];
+      item.qty = Math.max(1, item.qty + (+qtyBtn.dataset.d));
+      cartRender(); return;
+    }
+    const rm = e.target.closest('[data-remove]');
+    if (rm) { cart.splice(+rm.dataset.remove, 1); cartRender(); }
+  });
+
+  /* add to cart (event delegation, covers re-rendered cards) */
+  function addToCart(p, qty) {
+    const found = cart.find((c) => c.name === p.name);
+    if (found) found.qty += qty || 1; else cart.push({ ...p, qty: qty || 1 });
+    cartRender();
+    toast('Added to cart — ' + p.name);
+  }
+  document.addEventListener('click', (e) => {
+    const atc = e.target.closest('.add-to-cart-btn');
+    if (atc && atc.closest('.product-card')) {
+      const card = atc.closest('.product-card');
+      addToCart({
+        name: card.dataset.name, price: +card.dataset.price,
+        img: card.dataset.img, cat: card.dataset.cat,
+      }, 1);
+    }
+  });
+
+  /* ---------- wishlist ---------- */
+  const wish = new Set();
+  document.addEventListener('click', (e) => {
+    const w = e.target.closest('.wishlist-btn');
+    if (!w || !w.closest('.product-card')) return;
+    const card = w.closest('.product-card');
+    const name = card.dataset.name;
+    if (wish.has(name)) { wish.delete(name); toast('Removed from wishlist — ' + name); }
+    else { wish.add(name); toast('Added to wishlist — ' + name); }
+    const badge = $('#wishlist-count');
+    if (badge) {
+      badge.textContent = wish.size;
+      badge.classList.toggle('hidden', wish.size === 0);
+    }
+  });
+  if ($('#wishlist-open')) $('#wishlist-open').addEventListener('click', () => {
+    toast(wish.size ? `You have ${wish.size} item${wish.size > 1 ? 's' : ''} in your wishlist.` : 'Your wishlist is empty.');
+  });
+
+  /* ---------- quick view ---------- */
+  document.addEventListener('click', (e) => {
+    const qv = e.target.closest('.quickview-btn');
+    if (!qv || !$('#quickview-modal')) return;
+    const card = qv.closest('.product-card');
+    $('#qv-img').src = card.dataset.img;
+    $('#qv-cat').textContent = card.dataset.cat;
+    $('#qv-title').textContent = card.dataset.name;
+    $('#qv-price').innerHTML = +card.dataset.old
+      ? `<del class="text-soft font-normal mr-2">${money(+card.dataset.old)}</del><span>${money(+card.dataset.price)}</span>`
+      : `<span>${money(+card.dataset.price)}</span>`;
+    $('#quickview-modal').classList.remove('opacity-0', 'invisible');
+    document.body.classList.add('no-scroll');
+  });
+  let qvQty = 1;
+  $$('.qv-qty-btn').forEach((b) => b.addEventListener('click', () => {
+    qvQty = Math.max(1, qvQty + (+b.dataset.d));
+    $('#qv-qty').textContent = qvQty;
+  }));
+  if ($('#qv-add')) $('#qv-add').addEventListener('click', () => {
+    const name = $('#qv-title').textContent;
+    const card = $$('.product-card').find((c) => c.dataset.name === name);
+    addToCart({
+      name, price: +card.dataset.price, img: card.dataset.img, cat: card.dataset.cat,
+    }, qvQty);
+    closeQuick(); qvQty = 1; $('#qv-qty').textContent = '1';
+  });
+
+  /* ---------- toast ---------- */
+  let toastTimer;
+  function toast(msg) {
+    const t = $('#toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.remove('translate-y-20', 'opacity-0');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 2600);
+  }
+
+  /* ---------- newsletter ---------- */
+  if ($('#newsletter-form')) $('#newsletter-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    toast('Thanks for subscribing — check your inbox for 10% off.');
+    e.target.reset();
+  });
+
+  /* ---------- back to top ---------- */
+  const btt = $('#back-to-top');
+  if (btt) {
+    window.addEventListener('scroll', () => {
+      const show = window.scrollY > 600;
+      btt.classList.toggle('opacity-0', !show);
+      btt.classList.toggle('invisible', !show);
+    }, { passive: true });
+    btt.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
+
+  /* ---------- reveal on scroll ---------- */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.12 });
+  function observeReveals() { $$('.reveal:not(.in)').forEach((el) => io.observe(el)); }
+  observeReveals();
+
+  /* ---------- public API for page scripts ---------- */
+  window.MiminUI = { $, $$, money, cardHTML, addToCart, toast, cart, cartRender, openCart, closeCart, observeReveals };
+})();
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   MIMIN — cart page JS (table, coupon, totals, cross-sells)
+   ══════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  const { $, $$, money, cardHTML, cart, cartRender, toast, observeReveals } = window.MiminUI;
+
+  /* seed demo items so the page shows its full layout */
+  if (!cart.length) {
+    [
+      { name: 'Palmina', price: 300, img: 'assets/img/product-3-600x600.webp',  cat: 'Bedroom',  qty: 1 },
+      { name: 'Pendant Lamp Halo', price: 180, img: 'assets/img/product-2-600x600.webp', cat: 'Lighting', qty: 2 },
+    ].forEach((s) => cart.push(s));
+    cartRender();
+  }
+
+  let coupon = null; /* {code, pct} */
+  const COUPONS = { MIMIN10: 10, WELCOME15: 15 };
+
+  function totals() {
+    const subtotal = cart.reduce((a, c) => a + c.qty * c.price, 0);
+    const discount = coupon ? subtotal * coupon.pct / 100 : 0;
+    return { subtotal, discount, total: subtotal - discount };
+  }
+
+  function renderPage() {
+    const wrap = $('#cart-page-items');
+    if (!cart.length) {
+      $('#cart-empty').classList.remove('hidden');
+      $('#cart-content').classList.add('hidden');
+      return;
+    }
+    $('#cart-empty').classList.add('hidden');
+    $('#cart-content').classList.remove('hidden');
+
+    wrap.innerHTML = cart.map((c, i) => `
+      <div class="grid grid-cols-[96px_1fr] sm:grid-cols-[2.4fr_1fr_1.3fr_1fr_44px] gap-x-6 gap-y-3 py-6 border-b border-line items-center">
+        <div class="flex items-center gap-5 sm:contents">
+          <a href="product.html" class="block w-24 h-24 bg-mist overflow-hidden"><img src="${c.img}" alt="${c.name}" class="w-full h-full object-cover"></a>
+          <div class="sm:hidden">
+            <p class="text-[14.5px] leading-snug mb-1"><a href="product.html" class="hover:text-soft transition-colors">${c.name}</a></p>
+            <p class="text-[13.5px] text-soft">${money(c.price)} × ${c.qty}</p>
+          </div>
+        </div>
+        <span class="hidden sm:block text-[14.5px]">${money(c.price)}</span>
+        <div class="inline-flex items-center border border-line w-fit">
+          <button class="w-9 h-10 hover:bg-smoke transition-colors text-[15px]" data-cqty="${i}" data-d="-1">−</button>
+          <span class="w-10 text-center text-[14px]">${c.qty}</span>
+          <button class="w-9 h-10 hover:bg-smoke transition-colors text-[15px]" data-cqty="${i}" data-d="1">+</button>
+        </div>
+        <span class="text-[14.5px] font-medium sm:text-right" data-line="${i}">${money(c.qty * c.price)}</span>
+        <button class="hidden sm:flex w-9 h-9 items-center justify-center text-soft hover:text-black transition-colors justify-self-end" data-cremove="${i}" aria-label="Remove ${c.name}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <button class="sm:hidden col-span-full -mt-1 text-[13px] text-soft underline underline-offset-2 w-fit" data-cremove="${i}">Remove</button>
+      </div>`).join('');
+
+    const t = totals();
+    $('#ct-subtotal').textContent = money(t.subtotal);
+    $('#ct-discount').textContent = '-' + money(t.discount);
+    $('#ct-total').textContent = money(t.total);
+    $('#ct-coupon-row').classList.toggle('hidden', !coupon);
+    $('#ct-shipping').textContent = t.subtotal >= 100 || t.subtotal === 0 ? 'Free' : money(12);
+  }
+
+  /* qty + remove */
+  $('#cart-page-items').addEventListener('click', (e) => {
+    const qtyBtn = e.target.closest('[data-cqty]');
+    if (qtyBtn) {
+      const it = cart[+qtyBtn.dataset.cqty];
+      it.qty = Math.max(1, it.qty + (+qtyBtn.dataset.d));
+      cartRender(); renderPage(); return;
+    }
+    const rm = e.target.closest('[data-cremove]');
+    if (rm) {
+      toast('Removed — ' + cart[+rm.dataset.cremove].name);
+      cart.splice(+rm.dataset.cremove, 1);
+      cartRender(); renderPage();
+    }
+  });
+
+  /* coupon */
+  function applyCoupon() {
+    const code = $('#coupon-input').value.trim().toUpperCase();
+    if (!code) return;
+    if (COUPONS[code]) {
+      coupon = { code, pct: COUPONS[code] };
+      $('#ct-coupon-code').textContent = code;
+      renderPage();
+      toast(`Coupon applied — ${coupon.pct}% off`);
+    } else {
+      toast('Coupon "' + code + '" does not exist.');
+    }
+  }
+  $('#coupon-apply').addEventListener('click', applyCoupon);
+  $('#coupon-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyCoupon(); } });
+
+  /* cross-sells */
+  const CROSS = [
+    { name: 'Table Lamp Opal', price: 95, old: 0,  cat: 'Lighting',    img: 'assets/img/product-17-600x600.webp', hover: 'assets/img/product-17-2-600x600.webp' },
+    { name: 'Lantern Glow Mini', price: 85, old: 99, cat: 'Lighting',   img: 'assets/img/product-1-600x600.jpg',   hover: 'assets/img/product-1-2-600x600.jpg' },
+    { name: 'Nesting Table Duo', price: 260, old: 0, cat: 'Tables',    img: 'assets/img/product-11-600x600.webp', hover: 'assets/img/product-11-2-600x600.webp' },
+    { name: 'Indoor bench', price: 230, old: 265, cat: 'Bedroom',    img: 'assets/img/product-4-600x600.webp',  hover: 'assets/img/product-4-2-600x600.webp' },
+  ];
+  $('#cross-sells').innerHTML = CROSS.map(cardHTML).join('');
+  $('#cross-sell-wrap').classList.remove('hidden');
+  observeReveals();
+  renderPage();
+})();
+</script>
+</body>
+</html>
