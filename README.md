@@ -1,59 +1,68 @@
-# Mimin — Home 5 (Static Rebuild, Full Theme)
+# Mimin — WordPress WooCommerce Theme
 
-A pixel-faithful static rebuild of the **Mimin** WordPress/WooCommerce theme
-(origin: `https://mimin.wpbingosite.com/home-5/`) in plain HTML using
-**Tailwind CSS (CDN) + vanilla JavaScript**. No build step required.
+A complete **WordPress + WooCommerce theme** port of the **Mimin** Home 5 demo
+(origin: `https://mimin.wpbingosite.com/home-5/`), built on
+**Tailwind CSS (compiled) + vanilla JS + jQuery bridge** for WooCommerce AJAX.
 
-## Pages
+The original static rebuild (8 HTML pages) is kept at the repo root for
+reference. The installable theme lives in [`mimin-theme/`](mimin-theme/).
 
-| File | Page |
+## Install
+
+1. Install & activate **WooCommerce**.
+2. `wp-admin → Appearance → Themes → Add New → Upload Theme` → `mimin-theme.zip`
+   (or copy the `mimin-theme/` folder into `wp-content/themes/`).
+3. Activate **Mimin**. The front page renders the Home 5 layout automatically.
+4. Assign a **Primary Menu** (Appearance → Menus).
+   Add the CSS class `mm-mega` to a top-level item to render its children as
+   columns inside a full-width mega-menu panel.
+5. Edit everything under **Appearance → Customize → Mimin Theme Options**:
+   hero slides, category banners, best sellers, video, lookbook hotspots,
+   Instagram, contact, socials, footer & newsletter.
+
+## Features
+
+| Area | Details |
 |---|---|
-| `index.html` | Home 5 — hero slider, category banners, Best Sellers tabs, video banner, brands, lookbook, Instagram |
-| `shop.html` | Shop archive — sidebar widgets (price range, categories, colors, sizes, brands, rating, tags, top-rated), sorting, grid/list views, pagination, mobile filter drawer |
-| `product.html` | Single product — gallery with thumbs, color/size variations, qty, description/info/reviews tabs, review form, related products |
-| `cart.html` | Cart — editable table, coupon (`MIMIN10` / `WELCOME15`), totals, cross-sells |
-| `checkout.html` | Checkout — billing form, ship-to-different-address, order review, payment methods, order-received confirmation |
-| `blog.html` | Blog — featured post, article list, pagination |
-| `archive.html` | Blog archive — category chips + `?cat=` / `?month=` URL views, grid |
-| `post.html` | Single post — full article, tags/share, author box, comments with replies, related posts |
+| Home | 3-slide hero (autoplay/arrows/swipe/numbered bullets), 4 category banners, Best Sellers tabs by product category, video lightbox, brand marquee, lookbook with product hotspots, Instagram grid |
+| Shop archive | Filter sidebar (price, categories, color/size attributes, rating, top-rated, tags) + widget area override, mobile filter drawer, sorting, grid/list view, pagination |
+| Widgets | Blog sidebar, Shop Filters sidebar (Woo filter widgets supported), fallback demo widgets on both, footer menus |
+| Product | Quick view (AJAX), wishlist (localStorage), hover gallery, sale badge %, add-to-cart slide-up |
+| Single product | Woo gallery (zoom/lightbox), variations, tabs, reviews, related products |
+| Cart | Theme-styled cart page, quantity steppers, coupon toggle, totals, cross-sells + AJAX slide-out drawer with steppers |
+| Checkout | Classic Woo checkout restyled (grid layout, black buttons) |
+| Blog | Featured-post index, single post (tags/share/author/related), archives, search, pages, 404, comments |
+| Headers/footers | Announcement bar, sticky header, mega menu, search overlay, account link, cart badge |
 
-## Run it
+## Theme structure
 
-Open any page directly in a modern browser — or serve the folder:
+```
+mimin-theme/
+├── style.css                  theme header
+├── functions.php              setup, enqueue, menus, widgets
+├── inc/                       template-tags (walkers, breadcrumbs, icons), customizer, woo hooks + AJAX
+├── header.php / footer.php    announcement, drawers, search, cart drawer, quickview shell
+├── front-page.php             Home 5 (hero, banners, tabs, video, brands, lookbook, instagram)
+├── index/single/archive/search/page/404/comments
+├── sidebar.php · sidebar-shop.php
+├── template-parts/home/*      one part per home section
+├── woocommerce/               archive-product, single-product, content-product, cart, mini-cart
+├── assets/css/                theme.css (Tailwind build) · woocommerce.css · input.css (source)
+├── assets/js/mimin.js         overlays, AJAX cart/quickview/newsletter, hero, tabs
+└── assets/img/                40 original demo images + logo/payment
+```
+
+### Rebuilding the CSS
 
 ```bash
-npx serve .        # or: python3 -m http.server 8080
+cd mimin-theme
+npm install
+npm run build     # scans **/*.php + assets/js → assets/css/theme.css
 ```
 
-## What's inside
+## Static reference rebuild (repo root)
 
-```
-mimin-home5/
-├── index.html … archive.html   ← 8 pages (HTML + Tailwind + vanilla JS)
-└── assets/img/                 ← 40 original theme images
-```
-
-All pages share the same header (mega menu, search, account, cart drawer),
-footer, toast and back-to-top systems. The shared JS exposes a small API
-(`window.MiminUI`) used by page scripts — cart contents, toasts and product
-cards behave identically everywhere.
-
-## Interactive features (vanilla JS, no dependencies)
-
-- **Shop filters**: dual-handle price slider, category/brand checkboxes, color swatches, size + rating + tag chips — all combinable, with result counts and pagination
-- **Sorting**: default / popularity / rating / latest / price asc & desc
-- **Grid ↔ list view** toggle (`?view=list` supported)
-- **Cart**: shared cart store — drawer and cart page stay in sync; qty steppers, remove, coupon codes, free-shipping threshold at $100
-- **Checkout**: required-field validation, terms checkbox, 3 payment methods (bank details shown for transfer), simulated "Order received" receipt with order number/date/total
-- **Product**: image gallery, color/size selectors, review form that appends live
-- **Blog/archive**: category chips, month archive via URL, comment form with reply prefill, widget search
-- Hero slider (autoplay/arrows/swipe), quick-view modal, wishlist counter, mobile menu with accordions, lookbook hotspots, video lightbox, toasts, back-to-top, reveal-on-scroll, ESC-to-close
-
-## Notes
-
-- Font: **Jost** (Google Fonts) — free stand-in for the theme's FuturaCyrillic
-- Tailwind loads via CDN (`cdn.tailwindcss.com`); for production, compile with the Tailwind CLI
-- Cart/checkout pages seed two demo items on load so the full layout is visible
-- Coupon codes for demo: `MIMIN10` (10% off), `WELCOME15` (15% off)
-- Video source is a placeholder MP4 — replace in the Video Modal `<source>`
-- Lighting/Tables tab products and blog content are plausible demo data (the original loads via AJAX)
+`index.html`, `shop.html`, `product.html`, `cart.html`, `checkout.html`,
+`blog.html`, `post.html`, `archive.html` + `assets/img/` — the original
+pixel-faithful static reconstruction with the same design system. Open any
+page in a browser, or `npx serve .`
